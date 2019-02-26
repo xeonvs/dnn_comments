@@ -49,7 +49,7 @@ def clean_text_pre(text):
     text = text.replace("\\"," ").replace("&quot;"," ").replace("&nbsp;"," ").replace("&gt;"," ").replace("&lt;"," ").replace("&amp;"," ").replace("\"r"," ").replace("\"n"," ").replace(u'—','-').replace(u'…','.')
     text = text.replace(u'№', ' ').replace(u'«',' ').replace(u'»',' ').replace('[quote]',' ').replace('[/quote]',' ')
     text = re2.sub(' ', text)
-    text = re4.sub('URL', text)
+    text = re4.sub(' URL ', text)
     text = reEML.sub(r' MAIL ', text)
     text = re6.sub(r'\1', text)
     text = re8.sub(r' \1 ', text)
