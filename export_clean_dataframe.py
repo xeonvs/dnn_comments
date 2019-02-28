@@ -22,7 +22,7 @@ re0  = re.compile(ur'[:;_—.,!?©*@#$%^&()`\']|[+=]|[[]|[]]|[/]|"|\s{2,}|\-{2,}
 re2 = re.compile(r'<.+?>') # HTML tags
 re4 = re.compile(r"((www\.[^\s]+)|(https?://[^\s]+))") #URLs
 re6 = re.compile(r'([' + string.punctuation + ']){1,}') # punctuation
-re8 = re.compile(ur"(\S+)-{0,}\b", re.UNICODE) # word-
+re8 = re.compile(ur"(\S+)-{1,}\b", re.UNICODE) # word-
 re10 = re.compile(ur"([^0-9]+?)4([^0-9]+?)\b", re.UNICODE) #word4word
 re12 = re.compile(ur"\B-{1,}(\S+)\b", re.UNICODE) #-word
 re14 = re.compile(r'\s\d{5,}?\s') #deleting digits 5 or more
