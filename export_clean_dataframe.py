@@ -81,7 +81,6 @@ def clean_text_post(text, tils_enable=True):
        for m in re.finditer(reENW, text):
            txt = m.group(1).strip()
            if txt != 'URL' and txt != 'MAIL' and txt.find('.GIF') == -1:
-              print "x:", txt
               text = text.replace(txt, pytils.translit.detranslify(txt))
            elif txt.find('.GIF') != -1:
               text = text.replace('.GIF', ' ')
