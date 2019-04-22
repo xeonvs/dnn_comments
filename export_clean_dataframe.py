@@ -18,7 +18,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 #REGEXPS
-re0  = re.compile(ur'[:;_—.,!?©*@#$%^&()`\']|[+=]|[[]|[]]|[/]|"|\s{2,}|\-{2,}|\n')
+re0  = re.compile(ur'[:;_—.,!?§ї±©®*@#$%^&()`\'“”]|[+=]|[[]|[]]|[/]|"|\s{2,}|\-{2,}|\n')
 re2 = re.compile(r'<.+?>') # HTML tags
 re4 = re.compile(r"((www\.[^\s]+)|(https?://[^\s]+))") #URLs
 re6 = re.compile(r'([' + string.punctuation + ']){1,}') # punctuation
@@ -30,7 +30,7 @@ re16 = re.compile(ur"((дата:\s\d{2}\.\d{2}.\d{4}\s\d{2}:\d{2}:\d{2})|(оце
 re18 = re.compile(ur"\b4(\w+?)\b", re.UNICODE) #4word
 re20 = re.compile(ur"([а-жзк-мор-я])\1{2,}", re.UNICODE) #wooorrd -> word
 re22 = re.compile(ur"([а-я])\1{2,}", re.UNICODE) #wooorrd -> word
-re24 = re.compile(r'-(.)\s') #word-x\s -> word x
+re24 = re.compile(r'-(.)\s') #word-s\s -> word
 re26 = re.compile(r'\s{1,}-\s{1,}') # " one - two " -> "one-two"
 re28 = re.compile(ur'(\S{4,}?)\s{0,}-\s{0,}(\S{3,}.?)')
 re30 = re.compile(r'\s{1,}-(\S+?)\s')
@@ -42,12 +42,15 @@ re40 = re.compile(ur"\b(цитата)(.+?)\b",re.UNICODE) #quoteword -> quote wo
 reUSP = re.compile(r"\r|\n|\t|\x0b|\x0c|\x1c|\x1d|\x1e|\x1f|\s|\x85|\xa0|\u1680|\u180e|\u2000|\u2001|\u2002|\u2003|\u2004|\u2005|\u2006|\u2007|\u2008|\u2009|\u200a|\u2028|\u2029|\u202f|\u205f|\u3000|\xe2|\u2800") #unicode spaces
 reSP = re.compile(r'\s{2,}') #spaces
 reEN = re.compile(r'[a-z]')
-reENW = re.compile(r'\b([a-z]{2,}).*?\b') #words
+#reENW = re.compile(r'\b([a-z]{2,}).*?\b') #words
+reENW = re.compile(r'\b([a-z_.-]{2,}).*?\b', re.IGNORECASE)
 reEML = re.compile(r"([a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)") #email
+reSML = re.compile(r"(?:<.+?([a-z.0-9_]+?\.gif).+?>)")
 def clean_text_pre(text):
     text = text.lower()
     text = text.replace("\\"," ").replace("&quot;"," ").replace("&nbsp;"," ").replace("&gt;"," ").replace("&lt;"," ").replace("&amp;"," ").replace("\"r"," ").replace("\"n"," ").replace(u'—','-').replace(u'…','.')
     text = text.replace(u'№', ' ').replace(u'«',' ').replace(u'»',' ').replace('[quote]',' ').replace('[/quote]',' ')
+    text = reSML.sub(lambda x: x.group(1).upper(), text)
     text = re2.sub(' ', text)
     text = re4.sub(' URL ', text)
     text = reEML.sub(r' MAIL ', text)
@@ -69,15 +72,20 @@ def clean_text_pre(text):
     text = re36.sub(ur' \1 \2 ', text)
     text = re38.sub(ur' \1 \2 ', text)
     text = re40.sub(ur' \1 \2 ', text)
-    text = reENW.sub(r' \1 ', text)
+    #text = reENW.sub(r' \1 ', text)
     return text
 
 def clean_text_post(text, tils_enable=True):
-    text = re0.sub(' ', text)
     if tils_enable:
-        if reEN.search(text):
-             text = pytils.translit.detranslify(text)
-             text = text.replace("w",u'в')
+       #iterate all matches and translit word by word
+       for m in re.finditer(reENW, text):
+           txt = m.group(1).strip()
+           if txt != 'URL' and txt != 'MAIL' and txt.find('.GIF') == -1:
+              print "x:", txt
+              text = text.replace(txt, pytils.translit.detranslify(txt))
+           elif txt.find('.GIF') != -1:
+              text = text.replace('.GIF', ' ')
+    text = re0.sub(' ', text)
     text = text.decode("utf-8")
     text = reUSP.sub(' ', text)
     text = reSP.sub(' ', text)
